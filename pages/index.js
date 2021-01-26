@@ -1,10 +1,13 @@
+import React from 'react';
 import styled from 'styled-components';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+
 import db from '../db.json';
-import Widget from '../src/components/Widget/';
+import Widget from '../src/components/Widget';
 import Footer from '../src/components/Footer';
 import QuizBackground from '../src/components/QuizBackground';
 import GitHubCorner from '../src/components/GitHubCorner';
-
 
 export const QuizContainer = styled.div`
   width: 100%;
@@ -18,30 +21,61 @@ export const QuizContainer = styled.div`
 `;
 
 export default function Home() {
+  const router = useRouter();
+  const [name, setName] = React.useState('');
+
   return (
-    <QuizBackground backgroundImage = {db.bg}>
+    <QuizBackground backgroundImage={db.bg}>
+
+      <Head>
+        <title>
+          AluraQuiz - Modelo
+        </title>
+      </Head>
       <QuizContainer>
 
         <Widget>
           <Widget.Header>
             <h1>The legend of zelda</h1>
           </Widget.Header>
+
           <Widget.Content>
-            <p>Teste seus conhecimentos</p>
+            <form onSubmit = { function (infosDoEvento) {
+              infosDoEvento.preventDefault();
+
+              router.push(`/quiz?name=${name}`);
+
+              console.log('Fazendo uma submissão por meio do react');
+              // router manda para a próxima página
+            }}
+            >
+              <input 
+                onChange={function (infosDoEvento) {
+
+                  //State -> variáveis que mudam na tela
+                  setName(infosDoEvento.target.value);
+                }}
+                placeholder = "Diz ai seu nome" />
+
+              <button type="submit" disabled={name.length === 0}>
+                Jogar {name}
+              </button>
+            </form>
           </Widget.Content>
+
         </Widget>
 
         <Widget>
-            <Widget.Header>
-              <h1>Quizes da Galera</h1>
-            </Widget.Header>
+          <Widget.Header>
+            <h1>Quizes da Galera</h1>
+          </Widget.Header>
           <Widget.Content>
             <p>Teste seus conhecimentos</p>
           </Widget.Content>
         </Widget>
-        <Footer/>
+        <Footer />
       </QuizContainer>
-      <GitHubCorner projectURL="https://github.com/brunozambonini"/>
+      <GitHubCorner projectUrl="https://github.com/brunozambonini" />
     </QuizBackground>
   );
 }
