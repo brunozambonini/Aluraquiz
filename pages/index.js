@@ -7,18 +7,11 @@ import db from '../db.json';
 import Widget from '../src/components/Widget';
 import Footer from '../src/components/Footer';
 import QuizBackground from '../src/components/QuizBackground';
+import QuizLogo from '../src/components/QuizLogo';
 import GitHubCorner from '../src/components/GitHubCorner';
-
-export const QuizContainer = styled.div`
-  width: 100%;
-  max-width: 350px;
-  padding-top: 45px;
-  margin: auto 10%;
-  @media screen and (max-width: 500px) {
-    margin: auto;
-    padding: 15px;
-  }
-`;
+import QuizContainer from '../src/components/QuizContainer';
+import Input from '../src/components/Input';
+import Button from '../src/components/Button';
 
 export default function Home() {
   const router = useRouter();
@@ -33,7 +26,7 @@ export default function Home() {
         </title>
       </Head>
       <QuizContainer>
-
+        <QuizLogo />
         <Widget>
           <Widget.Header>
             <h1>The legend of zelda</h1>
@@ -42,25 +35,27 @@ export default function Home() {
           <Widget.Content>
             <form onSubmit = { function (infosDoEvento) {
               infosDoEvento.preventDefault();
-
+              // router manda para a próxima página
               router.push(`/quiz?name=${name}`);
 
               console.log('Fazendo uma submissão por meio do react');
-              // router manda para a próxima página
             }}
             >
-              <input 
-                onChange={function (infosDoEvento) {
-
+              <Input 
+                name="nomeDoUsuario"
+                onChange={(infosDoEvento) => {
                   //State -> variáveis que mudam na tela
                   setName(infosDoEvento.target.value);
                 }}
-                placeholder = "Diz ai seu nome" />
+                placeholder = "Diz ai seu nome"
+                value={name}
+                />
 
-              <button type="submit" disabled={name.length === 0}>
-                Jogar {name}
-              </button>
+                <Button type="submit" disabled={name.length === 0}>
+                  {`Jogar ${name}`}
+                </Button>
             </form>
+              
           </Widget.Content>
 
         </Widget>
