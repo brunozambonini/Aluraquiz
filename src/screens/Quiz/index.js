@@ -1,20 +1,25 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import db from '../db.json';
-import Widget from '../src/components/Widget';
-import QuizLogo from '../src/components/QuizLogo';
-import QuizBackground from '../src/components/QuizBackground';
-import QuizContainer from '../src/components/QuizContainer';
-import Button from '../src/components/Button';
-import LoaderSpinner from '../src/components/LoaderSpinner';
-import AlternativesForm from '../src/components/AlternativesForm';
+//import { Lottie } from '@crello/react-lottie';
+// import db from '../../../db.json';
+import Widget from '../../components/Widget';
+import QuizLogo from '../../components/QuizLogo';
+import QuizBackground from '../../components/QuizBackground';
+import QuizContainer from '../../components/QuizContainer';
+import AlternativesForm from '../../components/AlternativesForm';
+import Button from '../../components/Button';
+import BackLinkArrow from '../../components/BackLinkArrow';
+import LoaderSpinner from '../../components/LoaderSpinner';
+
+//import loadingAnimation from './animations/loading.json';
 
 //Tela de resultado
-function ResultWidget( { results }) {
+function ResultWidget({ results }) {
   return (
     <Widget>
       <Widget.Header>
-        Carregando...
+      <BackLinkArrow href="/"/>
+       Tela de Resultado:
       </Widget.Header>
 
       <Widget.Content>
@@ -34,15 +39,17 @@ function ResultWidget( { results }) {
           perguntas
         </p>
         <ul>
-          {results.map((result, index) => ( //funciona como um for
+          {results.map((result, index) => ( //map funciona como um for
             <li key={`result__${result}`}>
-            #{index + 1 } {' '} Resultado:
+              #
+              {index + 1}
+              {' '}
+              Resultado:
               {result === true
                 ? 'Acertou'
                 : 'Errou'}
             </li>
           ))}
-          
         </ul>
       </Widget.Content>
     </Widget>
@@ -57,7 +64,7 @@ function LoadingWidget() {
         Carregando...
       </Widget.Header>
 
-      <Widget.Content>
+      <Widget.Content style={{ display: 'flex', justifyContent: 'center' }}>
         <LoaderSpinner/>
       </Widget.Content>
     </Widget>
@@ -67,23 +74,22 @@ function LoadingWidget() {
 //tela de questões
 function QuestionWidget({
   //parametros
-  question, 
+  question,
   questionIndex,
   totalQuestions,
   onSubmit,
   addResult,
 }) {
-
   const [selectedAlternative, setSelectedAlternative] = React.useState(undefined);
+  const [isQuestionSubmited, setIsQuestionSubmited] = React.useState(false);
   const questionId = `question__${questionIndex}`;
   const isCorrect = selectedAlternative === question.answer;
-  const [isQuestionSubmited, setIsQuestionSubmited] = React.useState(false);
   const hasAlternativeSelected = selectedAlternative !== undefined;
 
   return (
     <Widget>
       <Widget.Header>
-        {/* <BackLinkArrow href="/" /> */}
+        <BackLinkArrow href="/"/>
         <h3>
           {`Pergunta ${questionIndex + 1} de ${totalQuestions}`}
         </h3>
@@ -115,12 +121,12 @@ function QuestionWidget({
               onSubmit();
               setIsQuestionSubmited(false);
               setSelectedAlternative(undefined);
-            }, 1 * 1000);
+            }, 3 * 1000);
           }}
         >
           {question.alternatives.map((alternative, alternativeIndex) => {
             const alternativeId = `alternative__${alternativeIndex}`;
-            const selectedAlternativeStatus = isCorrect ? 'SUCCESS' : 'ERROR';
+            const alternativeStatus = isCorrect ? 'SUCCESS' : 'ERROR';
             const isSelected = selectedAlternative === alternativeIndex;
             return (
               <Widget.Topic
@@ -134,7 +140,7 @@ function QuestionWidget({
                   style={{ display: 'none' }}
                   id={alternativeId}
                   name={questionId}
-                  onChange={ () => setSelectedAlternative(alternativeIndex) }
+                  onChange={() => setSelectedAlternative(alternativeIndex)}
                   type="radio"
                 />
                 {alternative}
@@ -148,11 +154,8 @@ function QuestionWidget({
           <Button type="submit" disabled={!hasAlternativeSelected}>
             Confirmar
           </Button>
-
-          {isCorrect && isQuestionSubmited && <p>Você acertou!</p>}
-
-          {!isCorrect && isQuestionSubmited && <p>Você errou!</p>}
-
+          {isQuestionSubmited && isCorrect && <p>Você acertou!</p>}
+          {isQuestionSubmited && !isCorrect && <p>Você errou!</p>}
         </AlternativesForm>
       </Widget.Content>
     </Widget>
@@ -164,15 +167,14 @@ const screenStates = {
   LOADING: 'LOADING',
   RESULT: 'RESULT',
 };
-
-export default function QuizPage() {
-  const [screenState, setScreenState] = React.useState(screenStates.LOADING); //starta a página com o estado loading
-  const totalQuestions = db.questions.length;
+export default function QuizPage({ externalQuestions, externalBg }) {
+  const [screenState, setScreenState] = React.useState(screenStates.LOADING);
+  const [results, setResults] = React.useState([]);
   const [currentQuestion, setCurrentQuestion] = React.useState(0);
   const questionIndex = currentQuestion;
-  const question = db.questions[questionIndex];
-
-  const [results, setResults] = React.useState([]);
+  const question = externalQuestions[questionIndex];
+  const totalQuestions = externalQuestions.length;
+  const bg = externalBg;
 
   function addResult(result) {
     // results.push(result);
@@ -181,7 +183,7 @@ export default function QuizPage() {
       result,
     ]);
   }
-  
+
   // [React chama de: Efeitos || Effects]
   // React.useEffect
   // atualizado === willUpdate
@@ -192,7 +194,7 @@ export default function QuizPage() {
     // fetch() ...
     setTimeout(() => {
       setScreenState(screenStates.QUIZ);
-    }, 1 * 1000);
+    }, 1 * 2000);
   // nasce === didMount
   }, []);
 
@@ -207,7 +209,7 @@ export default function QuizPage() {
   }
 
   return (
-    <QuizBackground backgroundImage={db.bg}>
+    <QuizBackground backgroundImage={bg}>
       <QuizContainer>
         <QuizLogo />
         {/* Caso o estado seja Quiz, mostra a pergunta */}
@@ -225,7 +227,8 @@ export default function QuizPage() {
         {screenState === screenStates.LOADING && <LoadingWidget />}
         
         {/* Caso o estado seja result, mostra o resultado das respostas */}
-        {screenState === screenStates.RESULT && <ResultWidget results = {results} />}
+        {screenState === screenStates.RESULT && <ResultWidget results={results} />}
+
       </QuizContainer>
     </QuizBackground>
   );

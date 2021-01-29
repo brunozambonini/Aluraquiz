@@ -6,7 +6,7 @@ import Loader from 'react-loader-spinner'
     render() {
      return(
       <Loader
-         type="Hearts"
+         type="TailSpin"
          color="#00BFFF"
          height={100}
          width={100}
